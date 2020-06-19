@@ -1,11 +1,12 @@
 """
 Tk GUI app to replace the audio channel from a video using ffmpeg
 """
-
 import subprocess
 import tkinter as tk
 from tkinter import ttk, filedialog
 from typing import Callable
+
+from utils import is_pathname_valid
 
 
 def replace_audio(
@@ -79,6 +80,15 @@ class MainFrame(ttk.Frame):
 
 
 class PathStringVar(tk.StringVar):
+    @staticmethod
+    def is_valid(value: str) -> bool:
+        return is_pathname_valid(value)
+
+    def set(self, value: str):
+        if not PathStringVar.is_valid(value):
+            raise ValueError(f"Invalid path: {value}")
+        return super().set(value)
+
     def make_update_command(self, callback: Callable[[], str]) -> Callable[[], None]:
         def command():
             self.set(callback())
