@@ -7,7 +7,7 @@ import subprocess
 import tkinter as tk
 import traceback
 from tkinter import ttk, filedialog, messagebox
-from typing import Callable
+from typing import Callable, Optional
 
 from utils import is_pathname_valid
 
@@ -126,18 +126,33 @@ class MainFrame(ttk.Frame):
 
     def run_command(self):
         try:
-            output_path = self.output_path.get()
-            replace_audio(self.video_path.get(), self.audio_path.get(), output_path)
-            os.system(f'explorer "{os.path.dirname(output_path)}"')
+            replace_audio(
+                self.video_path.get_nonempty(),
+                self.audio_path.get_nonempty(),
+                self.output_path.get_nonempty(),
+            )
         except Exception as exc:
             messagebox.showerror(
                 "Error", message=traceback.format_exception_only(type(exc), exc)[0]
             )
         else:
-            messagebox.showinfo(
-                title="Done", message="Audio replacement completed successfully"
-            )
-            self.quit()
+            self.succeeded()
+
+    def succeeded(self):
+        ans = messagebox.askyesno(
+            title="Audio replacement completed",
+            message=(
+                "Audio replacement completed successfully.\n"
+                "Do you wish to open the output video in the explorer?"
+            ),
+        )
+
+        if ans:
+            os.system(f'explorer /select,"{self.output_path.get()}"')
+
+        self.video_path.clear()
+        self.audio_path.clear()
+        self.output_path.clear()
 
 
 class PathStringVar(tk.StringVar):
@@ -145,10 +160,24 @@ class PathStringVar(tk.StringVar):
     def is_valid(value: str) -> bool:
         return is_pathname_valid(value)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.empty = bool(self.get())
+
+    def get_nonempty(self) -> Optional[str]:
+        return super().get() if not self.empty else None
+
     def set(self, value: str):
-        if not PathStringVar.is_valid(value):
-            raise ValueError(f"Invalid path: {value}")
-        return super().set(os.path.normpath(value))
+        if not value:
+            self.clear()
+        else:
+            if not PathStringVar.is_valid(value):
+                raise ValueError(f"Invalid path: {value}")
+            super().set(os.path.normpath(value))
+
+    def clear(self):
+        super().set("")
+        self.empty = True
 
     def make_update_command(self, callback: Callable[[], str]) -> Callable[[], None]:
         def command():
