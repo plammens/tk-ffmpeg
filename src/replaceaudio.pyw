@@ -52,7 +52,7 @@ class MainFrame(ttk.Frame):
         self.audio_path = PathStringVar()
         self.output_path = PathStringVar()
 
-        path_entry_width = 32
+        path_entry_width = 64
 
         # video path
         self.video_path_entry_label = ttk.Label(self, text="Select video file")
@@ -116,13 +116,14 @@ class MainFrame(ttk.Frame):
         self.output_path_entry.grid(row=3, column=2, sticky=(tk.W, tk.E,))
         self.output_path_entry_browse.grid(row=3, column=3, sticky=(tk.W,))
 
-        # row 4
-        self.run_button.grid(row=4, column=3, sticky=(tk.E,), pady=10)
-
         for child in self.winfo_children():
             child.grid_configure(padx=5, pady=5)
 
+        # row 4
+        self.run_button.grid(row=4, column=3, sticky=(tk.E, tk.S), pady=10)
+
         self.columnconfigure(2, weight=1)
+        self.rowconfigure(4, weight=1)
 
     def run_command(self):
         try:
