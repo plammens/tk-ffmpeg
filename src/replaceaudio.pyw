@@ -24,8 +24,8 @@ def replace_audio(
         raise ValueError(f"Nonexistent audio file path: {new_audio_path}")
 
     args = (
-        f"ffmpeg -i {video_path} -i {new_audio_path} "
-        f"-vcodec copy -acodec copy -map 0:0 -map 1:0 {output_path} -y"
+        f'ffmpeg -i "{video_path}" -i "{new_audio_path}" '
+        f'-vcodec copy -acodec copy -map 0:0 -map 1:0 "{output_path}" -y'
     )
     return subprocess.run(args, check=True)
 
