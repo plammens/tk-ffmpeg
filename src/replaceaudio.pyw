@@ -161,12 +161,9 @@ class PathStringVar(tk.StringVar):
     def is_valid(value: str) -> bool:
         return is_pathname_valid(value)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.empty = bool(self.get())
-
     def get_nonempty(self) -> Optional[str]:
-        return super().get() if not self.empty else None
+        res = super().get()
+        return res if res else None
 
     def set(self, value: str):
         if not value:
@@ -178,7 +175,6 @@ class PathStringVar(tk.StringVar):
 
     def clear(self):
         super().set("")
-        self.empty = True
 
     def make_update_command(self, callback: Callable[[], str]) -> Callable[[], None]:
         def command():
